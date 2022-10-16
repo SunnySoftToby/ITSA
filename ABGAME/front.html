@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>猜數字</h1>
+  <div>
+    <button onclick='startNewGame()'>新局</button>
+    <select id='select_num_digit'>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+    </select>
+    位數字
+  </div>
+
+  <div>
+    輸入 <span id='anser_size'>4</span> 位數字
+    <input type="number" id='guess_number' disabled>
+    <button onclick='guessNumber()'>OK</button>
+    <span id='error_message'></span>
+  </div>
+
+  <div>
+    <br>
+    <b>猜數字歷程：</b><br>
+    <textarea rows='10' id='history'></textarea><br>
+    <button onclick='show_ans()'>顯示答案</button>
+  </div>
+</body>
+</html>
+
+<script>
+  var num_digit = 4;
+  var ans;
+
+  function generateAns(){
+    let list= [];
+    let number =[0,1,2,3,4,5,6,7,8,9];
+    for(let i=0; i < num_digit; i++){
+      let rand_index;
+      while(true){
+        rand_index = Math.floor(Math.random()*number.length);
+        if( (i==0 && rand_index ==0) || list.includes(number[rand_index])){
+          continue;
+        }
+        list.push(number[rand_index]);
+        break;
+      }
+    }
+    document.getElementById("guess_number").disabled  = false;
+    return list.join('');
+  }
+
+  function startNewGame() {
+    num_digit = document.getElementById("select_num_digit").value;
+    document.getElementById("anser_size").textContent = num_digit;
+    ans = generateAns();
+    document.getElementById("history").value = "";
+  }
+
+  function guessNumber(){
+    document.getElementById('error_message').textContent = ""
+    let guess_number = document.getElementById("guess_number").value;
+    if(guess_number == ans){
+      alert('恭喜猜對!');
+    }
+    let guess_number_arr = Array.from(String(guess_number), num => Number(num));
+    let ans_arr = Array.from(String(ans), num => Number(num));
+    if(ans_arr.length != guess_number_arr.length){
+      document.getElementById('error_message').textContent = "數字個數不一致"
+      return;
+    }
+    
+    let A_amount = 0;
+    let B_amount = 0;
+
+    for(let i=0; i < guess_number_arr.length;i++){
+      if(guess_number_arr[i] == ans_arr[i]){
+        A_amount++;
+        guess_number_arr[i] = -1;
+        ans_arr[i] = -1;
+      }
+    }
+    for(let i=0; i < guess_number_arr.length;i++){
+      if(guess_number_arr[i] != -1){
+        if(ans_arr.includes(guess_number_arr[i])){
+          B_amount++;
+          ans_arr[ans_arr.indexOf(guess_number_arr[i])] = -1;
+        }
+      }
+    }
+
+    document.getElementById("history").value += guess_number + "==>" + A_amount +"A" + B_amount + "B" + "\n"
+  }
+
+  function show_ans(){
+    document.getElementById("guess_number").disabled  = true;
+    alert("正確答案是:" + ans);
+
+
+  }
+</script>
+
+
+<style>
+  #error_message{
+    color: red;
+  }
+</style>
